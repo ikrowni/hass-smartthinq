@@ -1,6 +1,20 @@
 Home Assistant: LG SmartThinQ Component
 =======================================
 Support for LG Smartthinq device.
+
+TESTED on US based Washer and Dryer.
+
+Washer - WT7200CV
+
+Dryer - DLE7200VE
+
+You'll need this version of WideQ: https://github.com/bdf0506/wideq
+
+----------------
+
+original instructions below:
+
+
 This is made for korean only.
 If you want to apply other county devices, you have to change this code for your country
 
