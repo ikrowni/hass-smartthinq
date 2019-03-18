@@ -6,7 +6,7 @@ import time
 
 from homeassistant.components import sensor
 from custom_components.smartthinq import (
-	DOMAIN, LGE_DEVICES, LGEDevice)
+        DOMAIN, LGE_DEVICES, LGEDevice)
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.config_validation import PLATFORM_SCHEMA  # noqa
 from homeassistant.const import (
@@ -31,17 +31,17 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 
 # For WASHER
 #-----------------------------------------------------------
-ATTR_CURRENT_STATUS = 'current_status'
+ATTR_CURRENT_STATUS = 'curent_status'
 ATTR_RUN_STATE = 'run_state'
-ATTR_PRE_STATE = 'pre_state'
-ATTR_REMAIN_TIME = 'remain_time'
+ATTR_PRE_STATE = 'previous_state'
+ATTR_REMAIN_TIME = 'remaining_time'
 ATTR_INITIAL_TIME = 'initial_time'
 ATTR_RESERVE_TIME = 'reserve_time'
-ATTR_CURRENT_COURSE = 'current_course'
+ATTR_CURRENT_COURSE = 'course'
+ATTR_WASH_OPTION_STATE = 'soil'
+ATTR_SPIN_OPTION_STATE = 'spin'
+ATTR_WATER_TEMP_OPTION_STATE = 'water_temp'
 ATTR_ERROR_STATE = 'error_state'
-ATTR_WASH_OPTION_STATE = 'wash_option_state'
-ATTR_SPIN_OPTION_STATE = 'spin_option_state'
-ATTR_WATERTEMP_OPTION_STATE = 'watertemp_option_state'
 ATTR_RINSECOUNT_OPTION_STATE = 'rinsecount_option_state'
 ATTR_DRYLEVEL_STATE = 'drylevel_state'
 ATTR_FRESHCARE_MODE = 'freshcare_mode'
@@ -50,11 +50,11 @@ ATTR_STEAM_MODE = 'steam_mode'
 ATTR_TURBOSHOT_MODE = 'turboshot_mode'
 ATTR_TUBCLEAN_COUNT = 'tubclean_count'
 ATTR_LOAD_LEVEL = 'load_level'
-ATTR_DEVICE_TYPE = 'device_type'
 
 WASHERRUNSTATES = {
-    'OFF': wideq.STATE_WASHER_POWER_OFF,
+    'OFF': wideq.STATE_WASHER_OFF,
     'INITIAL': wideq.STATE_WASHER_INITIAL,
+    'COMPLETE' : wideq.STATE_WASHER_COMPLETE,
     'PAUSE': wideq.STATE_WASHER_PAUSE,
     'ERROR_AUTO_OFF': wideq.STATE_WASHER_ERROR_AUTO_OFF,
     'RESERVE': wideq.STATE_WASHER_RESERVE,
@@ -67,7 +67,6 @@ WASHERRUNSTATES = {
     'RINSE_HOLD': wideq.STATE_WASHER_RINSE_HOLD,
     'SPINNING': wideq.STATE_WASHER_SPINNING,
     'DRYING': wideq.STATE_WASHER_DRYING,
-    'END': wideq.STATE_DRYER_END,
     'FRESHCARE': wideq.STATE_WASHER_FRESHCARE,
     'TCL_ALARM_NORMAL': wideq.STATE_WASHER_TCL_ALARM_NORMAL,
     'FROZEN_PREVENT_INITIAL': wideq.STATE_WASHER_FROZEN_PREVENT_INITIAL,
@@ -84,16 +83,16 @@ SOILLEVELSTATES = {
     'PRE_WASH': wideq.STATE_WASHER_SOILLEVEL_PRE_WASH,
     'SOAKING': wideq.STATE_WASHER_SOILLEVEL_SOAKING,
     'OFF': wideq.STATE_WASHER_POWER_OFF,
-
 }
 
 WATERTEMPSTATES = {
     'NO_SELECT': wideq.STATE_WASHER_TERM_NO_SELECT,
+    'TAP_COLD' : wideq.STATE_WASHER_WATERTEMP_TAP_COLD,
     'COLD' : wideq.STATE_WASHER_WATERTEMP_COLD,
-    'THIRTY' : wideq.STATE_WASHER_WATERTEMP_30,
-    'FOURTY' : wideq.STATE_WASHER_WATERTEMP_40,
-    'SIXTY': wideq.STATE_WASHER_WATERTEMP_60,
-    'NINTYFIVE': wideq.STATE_WASHER_WATERTEMP_95,
+    'SEMI_WARM' : wideq.STATE_WASHER_WATERTEMP_SEMI_WARM,
+    'WARM': wideq.STATE_WASHER_WATERTEMP_WARM,
+    'HOT': wideq.STATE_WASHER_WATERTEMP_HOT,
+    'EXTRA_HOTE': wideq.STATE_WASHER_WATERTEMP_EXTRA_HOT,
     'OFF': wideq.STATE_WASHER_POWER_OFF,
 
 }
@@ -130,6 +129,21 @@ DRYLEVELSTATES = {
     'OFF': wideq.STATE_WASHER_POWER_OFF,
 }
 
+WASHERCOURSES = {
+
+    'NORMAL' : wideq.STATE_WASHER_COURSE_NORMAL,
+    'HEAVY_DUTY' : wideq.STATE_WASHER_COURSE_HEAVY_DUTY,
+    'DELICATES' : wideq.STATE_WASHER_COURSE_DELICATES,
+    'WATER_PROOF' : wideq.STATE_WASHER_COURSE_WATER_PROOF,
+    'SPEED_WASH' : wideq.STATE_WASHER_COURSE_SPEED_WASH,
+    'BEDDING' : wideq.STATE_WASHER_COURSE_BEDDING,
+    'TUB_CLEAN' : wideq.STATE_WASHER_COURSE_TUB_CLEAN,
+    'RINSE_SPIN' : wideq.STATE_WASHER_COURSE_RINSE_SPIN,
+    'SPIN_ONLY' : wideq.STATE_WASHER_COURSE_SPIN_ONLY,
+    'PREWASH_PLUS' : wideq.STATE_WASHER_COURSE_PREWASH_PLUS,
+    'OFF' : wideq.STATE_WASHER_POWER_OFF,
+}
+
 WASHERERRORS = {
     'ERROR_dE2' : wideq.STATE_WASHER_ERROR_dE2,
     'ERROR_IE' : wideq.STATE_WASHER_ERROR_IE,
@@ -158,26 +172,43 @@ OPTIONITEMMODES = {
 
 # For DRYER
 #-----------------------------------------------------------
-ATTR_DRYLEVEL_STATE = 'drylevel_state'
-ATTR_ECOHYBRID_STATAE = 'ecohybrid_state'
+ATTR_RUN_STATE = 'run_state'
+ATTR_RUN_LIST = 'run_list'
+ATTR_REMAIN_TIME = 'remaining_time'
+ATTR_INITIAL_TIME = 'initial_time'
+ATTR_CURRENT_COURSE = 'course'
+ATTR_COURSE_LIST = 'course_list'
+ATTR_ERROR_STATE = 'error_state'
+ATTR_ERROR_LIST = 'error_list'
+ATTR_DRYLEVEL_STATE = 'drylevel'
+ATTR_DRYLEVEL_LIST = 'drylevel_list'
+ATTR_TEMPCONTROL_STATE = 'temperature'
+ATTR_TEMPCONTROL_LIST = 'temperature_list'
+ATTR_ECOHYBRID_STATE = 'ecohybrid_state'
 ATTR_ECOHYBRID_LIST = 'ecohybrid_list'
 ATTR_PROCESS_STATE = 'process_state'
-ATTR_CURRENT_SMARTCOURSE = 'current_smartcourse'
+ATTR_PROCESS_LIST = 'process_list'
+ATTR_CURRENT_SMARTCOURSE = 'smartcourse'
+ATTR_SMARTCOURSE_LIST = 'smartcourse_list'
 ATTR_ANTICREASE_MODE = 'anticrease_mode'
+ATTR_CHILDLOCK_MODE = 'childlock_mode'
 ATTR_SELFCLEANING_MODE = 'selfcleaning_mode'
 ATTR_DAMPDRYBEEP_MODE = 'dampdrybeep_mode'
 ATTR_HANDIRON_MODE = 'handiron_mode'
 ATTR_RESERVE_INITIAL_TIME = 'reserve_initial_time'
 ATTR_RESERVE_REMAIN_TIME = 'reserve_remain_time'
-ATTR_DEVICE_TYPE = 'device_type'
 
 DRYERRUNSTATES = {
-    'OFF': wideq.STATE_DRYER_POWER_OFF,
+    'OFF': wideq.STATE_DRYER_OFF,
     'INITIAL': wideq.STATE_DRYER_INITIAL,
     'RUNNING': wideq.STATE_DRYER_RUNNING,
     'PAUSE': wideq.STATE_DRYER_PAUSE,
     'END': wideq.STATE_DRYER_END,
     'ERROR': wideq.STATE_DRYER_ERROR,
+    'DRYING': wideq.STATE_DRYER_DRYING,
+    'SMART_DIAGNOSIS': wideq.STATE_DRYER_SMART_DIAGNOSIS,
+    'WRINKLE_CARE': wideq.STATE_DRYER_WRINKLE_CARE,
+    'COOLING': wideq.STATE_DRYER_COOLING,
 }
 
 PROCESSSTATES = {
@@ -193,8 +224,22 @@ PROCESSSTATES = {
 DRYLEVELMODES = {
     'IRON' : wideq.STATE_DRY_LEVEL_IRON,
     'CUPBOARD' : wideq.STATE_DRY_LEVEL_CUPBOARD,
-    'EXTRA' : wideq.STATE_DRY_LEVEL_EXTRA,
-    'OFF': wideq.STATE_DRYER_POWER_OFF,    
+    'EXTRA' : wideq.STATE_DRY_LEVEL_EXTRA,  
+    'DAMP' : wideq.STATE_DRY_LEVEL_DAMP,
+    'LESS' : wideq.STATE_DRY_LEVEL_LESS,
+    'MORE' : wideq.STATE_DRY_LEVEL_MORE,
+    'NORMAL': wideq.STATE_DRY_LEVEL_NORMAL,  
+    'VERY' : wideq.STATE_DRY_LEVEL_VERY,
+    'OFF': wideq.STATE_DRYER_POWER_OFF,
+}
+
+DRYERTEMPCONTROLMODES = {
+    'ULTRA_LOW' : wideq.STATE_DRY_TEMP_ULTRA_LOW,
+    'LOW' : wideq.STATE_DRY_TEMP_LOW,
+    'MEDIUM' : wideq.STATE_DRY_TEMP_MEDIUM,
+    'MID_HIGH' : wideq.STATE_DRY_TEMP_MID_HIGH,
+    'HIGH' : wideq.STATE_DRY_TEMP_HIGH,
+    'OFF': wideq.STATE_DRYER_POWER_OFF,
 }
 
 ECOHYBRIDMODES = {
@@ -204,39 +249,48 @@ ECOHYBRIDMODES = {
     'OFF': wideq.STATE_DRYER_POWER_OFF,    
 }
 
-COURSES = {
-    'Cotton Soft_타월' : wideq.STATE_COURSE_COTTON_SOFT,
-    'Bulky Item_이불' : wideq.STATE_COURSE_BULKY_ITEM,
-    'Easy Care_셔츠' : wideq.STATE_COURSE_EASY_CARE,
-    'Cotton_표준' : wideq.STATE_COURSE_COTTON,
-    'Sports Wear_기능성의류' : wideq.STATE_COURSE_SPORTS_WEAR,
-    'Quick Dry_급속' : wideq.STATE_COURSE_QUICK_DRY,
-    'Wool_울/섬세' : wideq.STATE_COURSE_WOOL,
-    'Rack Dry_선반 건조' : wideq.STATE_COURSE_RACK_DRY,
-    'Cool Air_송풍' : wideq.STATE_COURSE_COOL_AIR,        
-    'Warm Air_온풍' : wideq.STATE_COURSE_WARM_AIR,
-    '침구털기' : wideq.STATE_COURSE_BEDDING_BRUSH,
-    'Sterilization_살균' : wideq.STATE_COURSE_STERILIZATION,
-    'Power_강력' : wideq.STATE_COURSE_POWER,
-    'Refresh': wideq.STATE_COURSE_REFRESH,
+DRYERCOURSES = {
+#    'Cotton Soft' : wideq.STATE_COURSE_COTTON_SOFT,
+#    'Bulky Item' : wideq.STATE_COURSE_BULKY_ITEM,
+#    'Easy Care' : wideq.STATE_COURSE_EASY_CARE,
+#    'Cotton' : wideq.STATE_COURSE_COTTON,
+#    'Sports Wear' : wideq.STATE_COURSE_SPORTS_WEAR,
+#    'Quick Dry' : wideq.STATE_COURSE_QUICK_DRY,
+#    'Wool' : wideq.STATE_COURSE_WOOL,
+#    'Rack Dry' : wideq.STATE_COURSE_RACK_DRY,
+#    'Cool Air' : wideq.STATE_COURSE_COOL_AIR,        
+#    'Warm Air' : wideq.STATE_COURSE_WARM_AIR,
+#    'Bedding' : wideq.STATE_COURSE_BEDDING_BRUSH,
+#    'Sterilization' : wideq.STATE_COURSE_STERILIZATION,
+#    'Power' : wideq.STATE_COURSE_POWER,
+#    'Refresh': wideq.STATE_COURSE_REFRESH,
+#    'Normal': wideq.STATE_COURSE_NORMAL,
+#    'Speed Dry': wideq.STATE_COURSE_SPEED_DRY,
     'OFF': wideq.STATE_DRYER_POWER_OFF,
+    'Heavy Duty' : wideq.STATE_COURSE_HEAVY_DUTY,
+    'Normal' : wideq.STATE_COURSE_NORMAL,
+    'PermPress' : wideq.STATE_COURSE_PERM_PRESS,
+    'Delicates' : wideq.STATE_COURSE_DELICATES,
+    'Bedding' : wideq.STATE_COURSE_BEDDING,
+    'Speed Dry' : wideq.STATE_COURSE_SPEED_DRY,
+    'Air Dry' : wideq.STATE_COURSE_AIR_DRY,
+    'TimeDry' : wideq.STATE_COURSE_TIME_DRY,
 }
 
-SMARTCOURSES = {
-    'Gym Clothes_운동복' : wideq.STATE_SMARTCOURSE_GYM_CLOTHES,
-    'Rainy Season_장마철' : wideq.STATE_SMARTCOURSE_RAINY_SEASON,
-    'Deodorization_리프레쉬' : wideq.STATE_SMARTCOURSE_DEODORIZATION,
-    'Small Load_소량 건조' : wideq.STATE_SMARTCOURSE_SMALL_LOAD,
-    'Lingerie_란제리' : wideq.STATE_SMARTCOURSE_LINGERIE,
-    'Easy Iron_촉촉 건조' : wideq.STATE_SMARTCOURSE_EASY_IRON,
+DRYERSMARTCOURSES = {
+    'Gym Clothes' : wideq.STATE_SMARTCOURSE_GYM_CLOTHES,
+    'Rainy Season' : wideq.STATE_SMARTCOURSE_RAINY_SEASON,
+    'Deodorization' : wideq.STATE_SMARTCOURSE_DEODORIZATION,
+    'Small Load' : wideq.STATE_SMARTCOURSE_SMALL_LOAD,
+    'Lingerie' : wideq.STATE_SMARTCOURSE_LINGERIE,
+    'Easy Iron' : wideq.STATE_SMARTCOURSE_EASY_IRON,
     'SUPER_DRY' : wideq.STATE_SMARTCOURSE_SUPER_DRY,
-    'Economic Dry_절약 건조' : wideq.STATE_SMARTCOURSE_ECONOMIC_DRY,
-    'Big Size Item_큰 빨래 건조' : wideq.STATE_SMARTCOURSE_BIG_SIZE_ITEM,
-    'Minimize Wrinkles_구김 완화 건조' : wideq.STATE_SMARTCOURSE_MINIMIZE_WRINKLES,
-    'Full Size Load_다량 건조' : wideq.STATE_SMARTCOURSE_FULL_SIZE_LOAD,
-    'Jean_청바지' : wideq.STATE_SMARTCOURSE_JEAN,
+    'Economic Dry' : wideq.STATE_SMARTCOURSE_ECONOMIC_DRY,
+    'Big Size Item' : wideq.STATE_SMARTCOURSE_BIG_SIZE_ITEM,
+    'Minimize Wrinkles' : wideq.STATE_SMARTCOURSE_MINIMIZE_WRINKLES,
+    'Full Size Load' : wideq.STATE_SMARTCOURSE_FULL_SIZE_LOAD,
+    'Jean' : wideq.STATE_SMARTCOURSE_JEAN,
     'OFF': wideq.STATE_DRYER_POWER_OFF,
-
 }
 
 DRYERERRORS = {
@@ -363,7 +417,7 @@ class LGEWASHERDEVICE(LGEDevice):
 
     @property
     def name(self):
-    	return self._name
+        return self._name
 
     @property
     def device_type(self):
@@ -377,25 +431,25 @@ class LGEWASHERDEVICE(LGEDevice):
     def state_attributes(self):
         """Return the optional state attributes."""
         data={}
-        data[ATTR_DEVICE_TYPE] = self.device_type
+#        data[ATTR_DEVICE_TYPE] = self.device_type
         data[ATTR_RUN_STATE] = self.current_run_state
         data[ATTR_PRE_STATE] = self.pre_state
         data[ATTR_REMAIN_TIME] = self.remain_time
         data[ATTR_INITIAL_TIME] = self.initial_time
-        data[ATTR_RESERVE_TIME] = self.reserve_time
+#        data[ATTR_RESERVE_TIME] = self.reserve_time
         data[ATTR_CURRENT_COURSE] = self.current_course
-        data[ATTR_ERROR_STATE] = self.error_state
+        data[ATTR_WATER_TEMP_OPTION_STATE] = self.water_temp_option_state
         data[ATTR_WASH_OPTION_STATE] = self.wash_option_state
         data[ATTR_SPIN_OPTION_STATE] = self.spin_option_state
-        data[ATTR_WATERTEMP_OPTION_STATE] = self.watertemp_option_state
-        data[ATTR_RINSECOUNT_OPTION_STATE] = self.rinsecount_option_state
-        data[ATTR_DRYLEVEL_STATE] = self.drylevel_state
-        data[ATTR_FRESHCARE_MODE] = self.freshcare_mode
-        data[ATTR_CHILDLOCK_MODE] = self.childlock_mode
-        data[ATTR_STEAM_MODE] = self.steam_mode
-        data[ATTR_TURBOSHOT_MODE] = self.turboshot_mode
-        data[ATTR_TUBCLEAN_COUNT] = self.tubclean_count
-        data[ATTR_LOAD_LEVEL] = self.load_level
+        data[ATTR_ERROR_STATE] = self.error_state
+#        data[ATTR_RINSECOUNT_OPTION_STATE] = self.rinsecount_option_state
+#        data[ATTR_DRYLEVEL_STATE] = self.drylevel_state
+#        data[ATTR_FRESHCARE_MODE] = self.freshcare_mode
+#        data[ATTR_CHILDLOCK_MODE] = self.childlock_mode
+#        data[ATTR_STEAM_MODE] = self.steam_mode
+#        data[ATTR_TURBOSHOT_MODE] = self.turboshot_mode
+#        data[ATTR_TUBCLEAN_COUNT] = self.tubclean_count
+#        data[ATTR_LOAD_LEVEL] = self.load_level
         return data
 
     @property
@@ -449,17 +503,31 @@ class LGEWASHERDEVICE(LGEDevice):
             else:
                 return ":".join(reservetime)
 
+#    @property
+#    def current_course(self):
+#        if self._state:
+#            course = self._state.current_course
+#            smartcourse = self._state.current_smartcourse
+#            if course == 'APCourse':
+#                return smartcourse
+#            elif course == 'OFF':
+#                return 'OFF'
+#            else:
+#                return course
+
+
     @property
     def current_course(self):
         if self._state:
             course = self._state.current_course
+            return WASHERCOURSES[course]
+
+    @property
+    def current_smartcourse(self):
+        if self._state:
             smartcourse = self._state.current_smartcourse
-            if course == '다운로드코스':
-                return smartcourse
-            elif course == 'OFF':
-                return '꺼짐'
-            else:
-                return course
+            return WASHERSMARTCOURSES[smartcourse]
+
 
     @property
     def error_state(self):
@@ -487,13 +555,13 @@ class LGEWASHERDEVICE(LGEDevice):
                 return SPINSPEEDSTATES[spin_option.name]
 
     @property
-    def watertemp_option_state(self):
+    def water_temp_option_state(self):
         if self._state:
-            watertemp_option = self._state.water_temp_option_state
-            if watertemp_option == 'OFF':
+            water_temp_option = self._state.water_temp_option_state
+            if water_temp_option == 'OFF':
                 return WATERTEMPSTATES['OFF']
             else:
-                return WATERTEMPSTATES[watertemp_option.name]
+                return WATERTEMPSTATES[water_temp_option.name]
 
     @property
     def rinsecount_option_state(self):
@@ -512,6 +580,20 @@ class LGEWASHERDEVICE(LGEDevice):
                 return DRYLEVELSTATES['OFF']
             else:
                 return DRYLEVELSTATES[drylevel.name]
+
+#    @property
+#    def tempcontrol_state(self):
+#        if self._state:
+#            tempcontrol = self._state.tempcontrol_state
+#            if tempcontrol == 'OFF':
+#                return TEMPCONTROLMODES['OFF']
+#            else:
+#                return TEMPCONTROLMODES[tempcontrol.name]
+#
+#    @property
+#    def tempcontrol_list(self):
+#        return list(TEMPCONTROLMODES.values())
+#
 
     @property
     def freshcare_mode(self):
@@ -615,7 +697,7 @@ class LGEDRYERDEVICE(LGEDevice):
 
         import wideq
         self._dryer = wideq.DryerDevice(client, device)
-
+        
         self._dryer.monitor_start()
         self._dryer.monitor_start()
         self._dryer.delete_permission()
@@ -630,7 +712,7 @@ class LGEDRYERDEVICE(LGEDevice):
 
     @property
     def name(self):
-    	return self._name
+        return self._name
 
     @property
     def device_type(self):
@@ -644,23 +726,25 @@ class LGEDRYERDEVICE(LGEDevice):
     def state_attributes(self):
         """Return the optional state attributes."""
         data={}
-        data[ATTR_DEVICE_TYPE] = self.device_type
+#        data[ATTR_DEVICE_TYPE] = self.device_type
         data[ATTR_RUN_STATE] = self.current_run_state
+        data[ATTR_PRE_STATE] = self.pre_state
         data[ATTR_REMAIN_TIME] = self.remain_time
         data[ATTR_INITIAL_TIME] = self.initial_time
-        data[ATTR_RESERVE_REMAIN_TIME] = self.reserve_remain_time
-        data[ATTR_RESERVE_INITIAL_TIME] = self.reserve_initial_time
+#        data[ATTR_RESERVE_REMAIN_TIME] = self.reserve_remain_time
+#        data[ATTR_RESERVE_INITIAL_TIME] = self.reserve_initial_time
         data[ATTR_CURRENT_COURSE] = self.current_course
-        data[ATTR_CURRENT_SMARTCOURSE] = self.current_smartcourse
-        data[ATTR_ERROR_STATE] = self.error_state
+#        data[ATTR_CURRENT_SMARTCOURSE] = self.current_smartcourse
+        data[ATTR_TEMPCONTROL_STATE] = self.tempcontrol_state
         data[ATTR_DRYLEVEL_STATE] = self.drylevel_state
-        data[ATTR_ECOHYBRID_STATAE] = self.ecohybrid_state
-        data[ATTR_PROCESS_STATE] = self.current_process_state
-        data[ATTR_ANTICREASE_MODE] = self.anticrease_mode
-        data[ATTR_CHILDLOCK_MODE] = self.childlock_mode
-        data[ATTR_SELFCLEANING_MODE] = self.selfcleaning_mode
-        data[ATTR_DAMPDRYBEEP_MODE] = self.dampdrybeep_mode
-        data[ATTR_HANDIRON_MODE] = self.handiron_mode
+        data[ATTR_ERROR_STATE] = self.error_state
+#        data[ATTR_ECOHYBRID_STATE] = self.ecohybrid_state
+#        data[ATTR_PROCESS_STATE] = self.current_process_state
+#        data[ATTR_ANTICREASE_MODE] = self.anticrease_mode
+#        data[ATTR_CHILDLOCK_MODE] = self.childlock_mode
+#        data[ATTR_SELFCLEANING_MODE] = self.selfcleaning_mode
+#        data[ATTR_DAMPDRYBEEP_MODE] = self.dampdrybeep_mode
+#        data[ATTR_HANDIRON_MODE] = self.handiron_mode
         return data
     
     @property
@@ -679,6 +763,12 @@ class LGEDRYERDEVICE(LGEDevice):
         if self._state:
             run = self._state.run_state
             return DRYERRUNSTATES[run.name]
+
+    @property
+    def pre_state(self):
+        if self._state:
+            pre = self._state.pre_state
+            return DRYERRUNSTATES[pre.name]
 
     @property
     def remain_time(self):    
@@ -728,13 +818,13 @@ class LGEDRYERDEVICE(LGEDevice):
     def current_course(self):
         if self._state:
             course = self._state.current_course
-            return COURSES[course]
+            return DRYERCOURSES[course]
 
     @property
     def current_smartcourse(self):
         if self._state:
             smartcourse = self._state.current_smartcourse
-            return SMARTCOURSES[smartcourse]
+            return DRYERSMARTCOURSES[smartcourse]
 
     @property
     def error_state(self):
@@ -750,6 +840,15 @@ class LGEDRYERDEVICE(LGEDevice):
                 return DRYLEVELMODES['OFF']
             else:
                 return DRYLEVELMODES[drylevel.name]
+
+    @property
+    def tempcontrol_state(self):
+        if self._state:
+            tempcontrol = self._state.tempcontrol_state
+            if tempcontrol == 'OFF':
+                return DRYERTEMPCONTROLMODES['OFF']
+            else:
+                return DRYERTEMPCONTROLMODES[tempcontrol.name]
 
     @property
     def ecohybrid_state(self):
@@ -866,7 +965,7 @@ class LGEWATERPURIFIERDEVICE(LGEDevice):
 
     @property
     def name(self):
-    	return self._name
+        return self._name
 
     @property
     def device_type(self):
@@ -1059,4 +1158,3 @@ class LGEWATERPURIFIERDEVICE(LGEDevice):
         self._wp.monitor_start()
         self._wp.delete_permission()
         self._wp.delete_permission()
-
