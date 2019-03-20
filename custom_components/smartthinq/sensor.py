@@ -75,13 +75,13 @@ WASHERRUNSTATES = {
     'ERROR': wideq.STATE_WASHER_ERROR,
 }
 
-SOILLEVELSTATES = {
+SOILSTATES = {
     'NO_SELECT': wideq.STATE_WASHER_TERM_NO_SELECT,
-    'LIGHT': wideq.STATE_WASHER_SOILLEVEL_LIGHT,
-    'NORMAL': wideq.STATE_WASHER_SOILLEVEL_NORMAL,
-    'HEAVY': wideq.STATE_WASHER_SOILLEVEL_HEAVY,
-    'PRE_WASH': wideq.STATE_WASHER_SOILLEVEL_PRE_WASH,
-    'SOAKING': wideq.STATE_WASHER_SOILLEVEL_SOAKING,
+    'LIGHT': wideq.STATE_WASHER_SOIL_LIGHT,
+    'NORMAL': wideq.STATE_WASHER_SOIL_NORMAL,
+    'HEAVY': wideq.STATE_WASHER_SOIL_HEAVY,
+    'PRE_WASH': wideq.STATE_WASHER_SOIL_PRE_WASH,
+    'SOAKING': wideq.STATE_WASHER_SOIL_SOAKING,
     'OFF': wideq.STATE_WASHER_POWER_OFF,
 }
 
@@ -437,7 +437,7 @@ class LGEWASHERDEVICE(LGEDevice):
         data[ATTR_REMAIN_TIME] = self.remain_time
         data[ATTR_INITIAL_TIME] = self.initial_time
 #        data[ATTR_RESERVE_TIME] = self.reserve_time
-#        data[ATTR_CURRENT_COURSE] = self.current_course
+        data[ATTR_CURRENT_COURSE] = self.current_course
         data[ATTR_WATER_TEMP_OPTION_STATE] = self.water_temp_option_state
         data[ATTR_WASH_OPTION_STATE] = self.wash_option_state
         data[ATTR_SPIN_OPTION_STATE] = self.spin_option_state
@@ -516,11 +516,11 @@ class LGEWASHERDEVICE(LGEDevice):
 #                return course
 
 
-#    @property
-#    def current_course(self):
-#        if self._state:
-#            course = self._state.current_course
-#            return WASHERCOURSES[course]
+    @property
+    def current_course(self):
+        if self._state:
+            course = self._state.current_course
+            return WASHERCOURSES[course]
 
     @property
     def current_smartcourse(self):
@@ -541,9 +541,9 @@ class LGEWASHERDEVICE(LGEDevice):
         if self._state:
             wash_option = self._state.wash_option_state
             if wash_option == 'OFF':
-                return SOILLEVELSTATES['OFF']
+                return SOILSTATES['OFF']
             else:
-                return SOILLEVELSTATES[wash_option.name]
+                return SOILSTATES[wash_option.name]
 
     @property
     def spin_option_state(self):
