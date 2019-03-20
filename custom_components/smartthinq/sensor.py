@@ -437,7 +437,7 @@ class LGEWASHERDEVICE(LGEDevice):
         data[ATTR_REMAIN_TIME] = self.remain_time
         data[ATTR_INITIAL_TIME] = self.initial_time
 #        data[ATTR_RESERVE_TIME] = self.reserve_time
-        data[ATTR_CURRENT_COURSE] = self.current_course
+#        data[ATTR_CURRENT_COURSE] = self.current_course
         data[ATTR_WATER_TEMP_OPTION_STATE] = self.water_temp_option_state
         data[ATTR_WASH_OPTION_STATE] = self.wash_option_state
         data[ATTR_SPIN_OPTION_STATE] = self.spin_option_state
@@ -516,11 +516,11 @@ class LGEWASHERDEVICE(LGEDevice):
 #                return course
 
 
-    @property
-    def current_course(self):
-        if self._state:
-            course = self._state.current_course
-            return WASHERCOURSES[course]
+#    @property
+#    def current_course(self):
+#        if self._state:
+#            course = self._state.current_course
+#            return WASHERCOURSES[course]
 
     @property
     def current_smartcourse(self):
